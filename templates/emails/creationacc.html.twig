@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+<h1>Bonjour {{ user.firstname }}</h1>
+
+<div>
+    Bienvenue dans l'aventure ! Votre compte est créé et il ne reste plus qu'à vous connecter <a
+            href="{{ absolute_url(path('app_login')) }}">ici </a>!
+</div>
+<div>
+    L'équipe d'administration
+</div>
+
+</body>
+</html>
