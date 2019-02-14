@@ -1,4 +1,5 @@
-#Custom Security for Symfony 4.0
+Custom Security for Symfony 4.0
+=====================
 
 Requirements
 ------------
@@ -26,16 +27,18 @@ $ bin/console s:r
 ```
 
 
-###Specficiations & features
 
-#####Entity
+Entity
+------------
+
 
 - Simple User Entity : Unique Email per user
 
 - Desabled account function for USER_ROLE own account (in order to join it with a cron script and delete all ROLE_DESABLE in db)
 
 
-#####Registration
+Registration
+------------
 
 - Registration form 
 
@@ -45,7 +48,8 @@ $ bin/console s:r
 http://yourdomainname/register
 ```
 
-#####Login 
+Login
+------------ 
 
 - Login Form auto redirection if not connected
 
@@ -53,12 +57,14 @@ http://yourdomainname/register
 http://yourdomainname/login
 ```
 
-#####Swift Mailer
+Swift Mailer
+------------
 - MailManager service: on created/deleted accounts
 
 - Parameters configured with some examples
 
-#####Admin Features
+Admin Features
+------------
 
 - Promote a user to admin / Demote an admin to user
 
@@ -66,8 +72,8 @@ http://yourdomainname/login
 
 - Access denied for users
 
-## 
-###Next evolutions
+Next evolutions
+------------
 
 - 404 view
 
