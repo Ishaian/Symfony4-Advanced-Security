@@ -4,7 +4,13 @@
 
 {% block body %}
     <h1>Edit User</h1>
-
+    {% if app.session.flashBag.has('success') %}
+        <div class="alert alert-info text-center">
+            {% for msg in app.session.flashBag.get('success') %}
+                {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
     {{ include('user/_form.html.twig', {'button_label': 'Update'}) }}
     {% if is_granted('ROLE_USER') %}
         <a href="{{ path('user_desable', {'id': user.id}) }}">Desable account</a>

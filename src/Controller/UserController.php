@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use App\Services\MailManager;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @Route("/user")
@@ -36,6 +37,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ADMIN")
      * @Route("/new", name="user_new", methods={"GET","POST"})
      */
     public function new(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
@@ -79,38 +81,45 @@ class UserController extends AbstractController
      */
     public function edit(Request $request, User $user, UserPasswordEncoderInterface $passwordEncoder): Response
     {
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+        if ($user->getId() == $this->getUser()->getId()) {
+            $form = $this->createForm(UserType::class, $user);
+            $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
-            if ($form->get('password')->getData()) {
-                $user->setPassword(
-                    $passwordEncoder->encodePassword(
-                        $user,
-                        $form->get('password')->getData()
-                    )
-                );
+            if ($form->isSubmitted() && $form->isValid()) {
+                // encode the plain password
+                if ($form->get('password')->getData()) {
+                    $user->setPassword(
+                        $passwordEncoder->encodePassword(
+                            $user,
+                            $form->get('password')->getData()
+                        )
+                    );
+                }
+
+                $this->getDoctrine()->getManager()->flush();
+
+                return $this->redirectToRoute('user_index', [
+                    'id' => $user->getId(),
+                ]);
             }
-
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('user_index', [
-                'id' => $user->getId(),
+            $this->addFlash('success', 'Your modifications are saved');
+            return $this->render('user/edit.html.twig', [
+                'user' => $user,
+                'form' => $form->createView(),
             ]);
+        } else {
+            $this->addFlash('info', '"An error was detected"');
+            return $this->redirectToRoute('home');
         }
-
-        return $this->render('user/edit.html.twig', [
-            'user' => $user,
-            'form' => $form->createView(),
-        ]);
     }
+
 
     /**
      * @IsGranted("ROLE_ADMIN")
      * @Route("/{id}", name="user_delete", methods={"DELETE"})
      */
-    public function delete(Request $request, User $user): Response
+    public
+    function delete(Request $request, User $user): Response
     {
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
@@ -124,27 +133,33 @@ class UserController extends AbstractController
      * @IsGranted("ROLE_USER")
      * @Route("/{id}/desabled", name="user_desable")
      */
-    public function AccDesable(User $user, \Swift_Mailer $mailer, MailManager $mailManager)
+    public
+    function AccDesable(User $user, \Swift_Mailer $mailer, MailManager $mailManager, Request $request)
     {
-        $user->setAccDesable(true);
-        $user->removeRoles($user->getRoles())->setRoles(array('ROLE_DESABLE'));
-        $this->FlushUser($user);
+        if ($user->getId() == $this->getUser()->getId()) {
+            $user->setAccDesable(true);
+            $user->removeRoles($user->getRoles())->setRoles(array('ROLE_DESABLE'));
+            $this->FlushUser($user);
 
-        $sender = $this->getParameter('mail_admin');
-        $receiver = $user->getEmail();
-        $subject = "Account Suppression";
-        $content = $this->renderView('emails/delaccount.html.twig', ['user' => $user]);
-        $mailManager->mailSender($mailer, $subject, $sender, $receiver, $content);
-
-        return $this->redirectToRoute("app_logout");
-        //TODO : Cron Configuration to delete in db all ROLE_DESABLE Account
+            $sender = $this->getParameter('mail_admin');
+            $receiver = $user->getEmail();
+            $subject = "Account Suppression";
+            $content = $this->renderView('emails/delaccount.html.twig', ['user' => $user]);
+            $mailManager->mailSender($mailer, $subject, $sender, $receiver, $content);
+            return $this->redirectToRoute("app_logout");
+            //TODO : Cron Configuration to delete in db all ROLE_DESABLE Account
+        } else {
+            $this->addFlash('info', '"An error was detected"');
+            return $this->redirectToRoute('home');
+        }
     }
 
     /**
      * @IsGranted("ROLE_ADMIN")
      * @Route("/{id}/promote", name="user_to_admin")
      */
-    public function UserToAdmin(User $user)
+    public
+    function UserToAdmin(User $user)
     {
         $user->removeRoles($user->getRoles())->setRoles(array('ROLE_ADMIN'));
         $this->FlushUser($user);
@@ -155,7 +170,8 @@ class UserController extends AbstractController
      * @IsGranted("ROLE_ADMIN")
      * @Route("/{id}/demote", name="admin_to_user")
      */
-    public function AdminToUser(User $user)
+    public
+    function AdminToUser(User $user)
     {
         $user->removeRoles($user->getRoles())->setRoles(array('ROLE_USER'));
         $this->FlushUser($user);

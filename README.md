@@ -1,4 +1,4 @@
-Custom Security for Symfony 4.0
+Custom Security for Symfony 4.X
 =====================
 
 Requirements
@@ -31,7 +31,6 @@ $ bin/console s:r
 Entity
 ------------
 
-
 - Simple User Entity : Unique Email per user
 
 - Desabled account function for USER_ROLE own account (in order to join it with a cron script and delete all ROLE_DESABLE in db)
@@ -59,6 +58,7 @@ http://yourdomainname/login
 
 Swift Mailer
 ------------
+
 - MailManager service: on created/deleted accounts
 
 - Parameters configured with some examples
@@ -68,20 +68,27 @@ Admin Features
 
 - Promote a user to admin / Demote an admin to user
 
-- Crud user for admin
+- Crud user system for admin
 
-- Access denied for users
+- Access denied for users with home redirection
 
-Next evolutions
+User Features
 ------------
 
-- 404 view
+- Scripted password on creation and edition
 
-- Desable account function improvement 
+- Session AuthChecker (another user cannot do an action on your profile) 
 
-- Forms improvements
+- MailAlert on account delete action
 
-- Flashes messages on login/logout
+Flash Messages
+------------
 
-- SuperAdmin Creation for demote/promote security
+- On denied accesses 
+
+- On edition 
+
+
+
+
 
